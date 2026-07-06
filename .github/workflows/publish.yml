@@ -12,7 +12,7 @@ on:
 
 permissions:
   contents: read
-  id-token: write # required for npm provenance
+  # id-token: write  # re-enable together with --provenance if the repo becomes public
 
 jobs:
   publish:
@@ -46,12 +46,12 @@ jobs:
 
       - name: Publish (dry run)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
-        run: npm publish --access public --provenance --dry-run
+        run: npm publish --access public --dry-run
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish
         if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.dry-run) }}
-        run: npm publish --access public --provenance
+        run: npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
