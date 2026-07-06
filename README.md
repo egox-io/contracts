@@ -2,7 +2,7 @@
 
 Wire-format TypeScript contracts shared by every EgoX surface — backend,
 SDK (`@egox/client`), MCP server, and console. **Types only**, no runtime
-exports, never published to npm.
+exports. Published to npm as [`@egox/contracts`](https://www.npmjs.com/package/@egox/contracts) so every surface can pin the same version.
 
 ## Why this exists
 
