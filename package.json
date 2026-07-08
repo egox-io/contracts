@@ -1,6 +1,6 @@
 {
   "name": "@egox/contracts",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Wire-format type contracts shared between EgoX backend, SDK, MCP and console. Type-only — no runtime artifacts.",
   "types": "./src/index.d.ts",
   "exports": {
