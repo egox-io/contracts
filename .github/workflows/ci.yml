@@ -1,8 +1,10 @@
 name: CI
 
 on:
+  # Feature-branch pushes get typechecked. Pushes to main are handled by
+  # publish.yml (which also typechecks), so exclude main here to avoid double runs.
   push:
-    branches: ["**"]
+    branches-ignore: ["main"]
   pull_request:
     branches: ["**"]
 

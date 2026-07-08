@@ -1,18 +1,26 @@
 name: Publish to npm
 
 on:
-  release:
-    types: [published]
+  # On every push to main: typecheck, and if it passes, auto-bump the patch
+  # version, push the bump back, and publish to npm.
+  push:
+    branches: [main]
+  # Manual run — with dry-run, it typechecks and does a publish dry-run
+  # WITHOUT bumping the version or pushing anything.
   workflow_dispatch:
     inputs:
       dry-run:
-        description: "Run npm publish in dry-run mode (no upload)"
+        description: "Typecheck and dry-run publish only (no version bump, no upload)"
         type: boolean
         default: false
 
 permissions:
-  contents: read
+  contents: write # required to push the version-bump commit + tag back to main
   # id-token: write  # re-enable together with --provenance if the repo becomes public
+
+concurrency:
+  group: publish-main
+  cancel-in-progress: false
 
 jobs:
   publish:
@@ -27,23 +35,46 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org
 
+      # --- install -> typecheck (a failure here stops the job before publishing) ---
       - name: Install dependencies
         run: npm install --no-package-lock
 
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Verify version matches release tag
-        if: github.event_name == 'release'
+      # --- decide whether to bump: only if the current version is already on npm ---
+      - name: Decide whether to bump
+        id: decide
         run: |
-          PKG_VERSION="v$(node -p "require('./package.json').version")"
-          TAG="${GITHUB_REF_NAME}"
-          echo "package.json: $PKG_VERSION | tag: $TAG"
-          if [ "$PKG_VERSION" != "$TAG" ]; then
-            echo "::error::package.json version ($PKG_VERSION) does not match release tag ($TAG)"
-            exit 1
+          NAME=$(node -p "require('./package.json').name")
+          CUR=$(node -p "require('./package.json').version")
+          ENC=$(printf '%s' "$NAME" | sed 's#/#%2f#')
+          if curl -sfI "https://registry.npmjs.org/$ENC/$CUR" > /dev/null; then
+            echo "bump=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::$NAME@$CUR is already on npm — will bump the patch version."
+          else
+            echo "bump=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::$NAME@$CUR is not on npm — will publish it as-is (no bump)."
           fi
 
+      # --- bump only when needed, and push the bump back to main ---
+      - name: Configure git
+        if: ${{ steps.decide.outputs.bump == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry-run) }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump patch version
+        if: ${{ steps.decide.outputs.bump == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry-run) }}
+        run: |
+          NEW=$(npm version patch -m "chore(release): %s [skip ci]")
+          echo "::notice::Bumped to $NEW"
+
+      - name: Push version bump
+        if: ${{ steps.decide.outputs.bump == 'true' && !(github.event_name == 'workflow_dispatch' && inputs.dry-run) }}
+        run: git push --follow-tags origin HEAD:main
+
+      # --- publish ---
       - name: Publish (dry run)
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.dry-run }}
         run: npm publish --access public --dry-run
