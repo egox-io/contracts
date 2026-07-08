@@ -81,6 +81,7 @@ export * from './tool';
 export * from './rag';
 export * from './api-key';
 export * from './mcp-token';
+export * from './mcp-connection';
 export * from './tenant';
 export * from './thread';
 export * from './personality';
