@@ -62,6 +62,11 @@
  *                        create / update / clone bodies,
  *                        `ActiveTenantPersonalityWire`. Shared:
  *                        `PersonalityTraitsWire`, `PresetType`.
+ *   - `user-memory.d.ts` — Per-end-user learning (Phase 15 / exURM).
+ *                        `UserMemoryWire`, `UserMemoryUserSummaryWire`,
+ *                        `UpdateUserMemoryFactBody`, list / detail / fact /
+ *                        forget response data, vocabularies (`UserMemoryKind`,
+ *                        `UserMemoryStatus`, `UserMemorySource`).
  *
  * This barrel re-exports everything so existing consumers' import paths
  * (`import type { AskResponseData } from '@egox/contracts'`) keep
@@ -85,4 +90,5 @@ export * from './mcp-connection';
 export * from './tenant';
 export * from './thread';
 export * from './personality';
+export * from './user-memory';
 export * from './search';
