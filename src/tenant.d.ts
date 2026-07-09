@@ -134,6 +134,13 @@ export interface TenantWire {
     status: TenantStatus;
     /** Billing plan (migrations 023/035). Drives usage quotas. Default 'id_ego'. */
     plan: TenantPlan;
+
+    // Time-boxed debug mode (migration 037). Populated on the LIST response
+    // (joined from tenant_configs); omitted where the query does not join it.
+    // `debug_enabled` is resolved server-side as `debug_until > NOW()`.
+    debug_enabled?: boolean;
+    /** ISO 8601 expiry backing `debug_enabled`; null when off/expired. */
+    debug_until?: string | null;
 }
 
 // ============================================================================
