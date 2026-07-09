@@ -170,6 +170,14 @@ export interface AskStreamDoneEvent {
     model: string;
     usage: TokenUsage;
     /**
+     * Auto-generated conversation title (SPI_202). Same semantics as
+     * `AskResponseData.title` — surfaced on the terminal event so streaming
+     * consumers can label the thread without a separate thread fetch. Present
+     * once the thread has a title (the turn the overlapped title lands, and
+     * every turn after); absent while a first-turn title is still generating.
+     */
+    title?: string;
+    /**
      * Pending high-impact actions awaiting user approval (Path-A, DotCollab #8).
      * Same semantics + shape as `AskResponseData.pendingActions` — surfaced on
      * the stream's terminal event so streaming consumers can render the

@@ -159,6 +159,14 @@ export interface MessageWire {
      * vocabulary.
      */
     failureReason: MessageFailureReason | null;
+    /**
+     * Manual operator incident flag on this turn — the CURRENT state
+     * (latest by `flaggedAt`; at most one `open` at a time). `null`/absent
+     * when the turn was never flagged. Additive (v0.5.2); populated only by
+     * the thread-detail read path, never on the /ask hot path. See
+     * `MessageIncidentWire`.
+     */
+    incident?: MessageIncidentWire | null;
     /** ISO 8601 timestamp. */
     createdAt: string;
 }
@@ -181,3 +189,60 @@ export interface ThreadListResponseData {
 }
 
 export interface ThreadGetResponseData extends ThreadWithMessagesWire {}
+
+// ============================================================================
+// Message incidents — manual operator flagging of a turn
+//
+// The manual counterpart to the auto-set `failedRecovery`/`failureReason`
+// "bad turn" flags: an operator reviewing a conversation can flag a single
+// turn as an incident (with a reason + optional note), then later resolve it.
+// Metadata only — never message content. Stored in `egox_message_incidents`
+// (migration 040); at most one `open` incident per message.
+// ============================================================================
+
+/**
+ * Why an operator flagged a turn. Locked vocabulary — mirrors the
+ * migration-040 CHECK constraint; adding a value requires a migration + this
+ * type in lockstep so the UI, filter SQL and DB can't drift.
+ */
+export type MessageIncidentReason =
+    | 'wrong_answer'
+    | 'hallucination'
+    | 'tool_failure'
+    | 'unsafe_content'
+    | 'policy_violation'
+    | 'other';
+
+/** Incident lifecycle. `open` on flag; `resolved` once an operator clears it. */
+export type MessageIncidentStatus = 'open' | 'resolved';
+
+/** A manual incident flag raised on a single message/turn. Metadata only. */
+export interface MessageIncidentWire {
+    id: string;
+    tenantId: string;
+    threadId: string;
+    messageId: string;
+    reason: MessageIncidentReason;
+    /** Optional free-text note from the operator who flagged. */
+    note: string | null;
+    status: MessageIncidentStatus;
+    /** User id who flagged (from the validated session), when known. */
+    flaggedBy: string | null;
+    /** ISO 8601 timestamp. */
+    flaggedAt: string;
+    /** User id who resolved; `null` while open. */
+    resolvedBy: string | null;
+    /** ISO 8601 timestamp; `null` while open. */
+    resolvedAt: string | null;
+}
+
+/** Body for `POST …/threads/:threadId/messages/:messageId/incident` (flag). */
+export interface FlagMessageIncidentBody {
+    reason: MessageIncidentReason;
+    note?: string;
+}
+
+/** Response data for both the flag and resolve endpoints. */
+export interface MessageIncidentResponseData {
+    incident: MessageIncidentWire;
+}

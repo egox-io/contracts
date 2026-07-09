@@ -214,6 +214,15 @@ export interface AskResponseData {
     /** Echo of `AskRequestBody.metadata`, unchanged. */
     metadata?: Record<string, unknown>;
     /**
+     * Auto-generated conversation title (SPI_202) — a short summary of the
+     * thread's first message. Present once the thread has a title: on a new
+     * thread's first turn when the overlapped title finished in time, and on
+     * every turn thereafter (it's persisted). Absent while a first-turn title is
+     * still generating and for no-store threads (never titled). Additive — older
+     * consumers ignore it.
+     */
+    title?: string;
+    /**
      * Pending high-impact actions awaiting user approval (Path-A, DotCollab #8).
      * Populated (non-empty) when a gated tool returned an `approval_requested`
      * envelope this turn instead of executing — the consumer renders an
