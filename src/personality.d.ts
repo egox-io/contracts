@@ -196,6 +196,14 @@ export interface TenantPersonalityProfileWire {
 
     isActive: boolean;
 
+    /**
+     * Authorship: 'manual' (created/updated by a human in the Console) or
+     * 'mcp' (written via the MCP server). Mirrors the tools/rag/prompts
+     * `source` convention — lets the Console render a provenance badge on the
+     * profile row and lets the mcp-admin path force-guard human-curated rows.
+     */
+    source: 'manual' | 'mcp';
+
     templateSourceUserId: string | null;
     templateSourceProfileId: string | null;
 
