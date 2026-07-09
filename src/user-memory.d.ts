@@ -60,6 +60,18 @@ export type UserMemoryStatus = 'pending' | 'approved' | 'rejected';
  */
 export type UserMemorySource = 'agent_tool';
 
+/**
+ * A distinct PII/PHI entity type flagged by the Presidio pass on a proposed
+ * fact at propose time (Phase 15 / exURM, Phase C), with the highest confidence
+ * seen for that type. `type` is Presidio's entity label (e.g. `'PERSON'`,
+ * `'EMAIL_ADDRESS'`, `'US_SSN'`). Never carries the matched text — types only.
+ */
+export interface PiiEntitySummary {
+    type: string;
+    /** Highest analyzer confidence for this type, in `[0, 1]`. */
+    score: number;
+}
+
 // ============================================================================
 // UserMemoryWire — the canonical row shape
 // ============================================================================
@@ -98,6 +110,14 @@ export interface UserMemoryWire {
     reviewedAt: string | null;
     /** User id who reviewed; `null` while pending. */
     reviewedBy: string | null;
+    /**
+     * PII/PHI entity types the Presidio pass flagged in this fact's text at
+     * propose time (Phase C). Empty/absent when none were found or Presidio
+     * isn't configured. The review UI surfaces a "possible PII" chip so the
+     * owner can scrutinise before approving. Never includes the matched text.
+     * Additive — older consumers ignore it.
+     */
+    piiEntities?: PiiEntitySummary[];
 }
 
 // ============================================================================
