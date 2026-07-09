@@ -24,10 +24,33 @@
  * every admin route call.
  */
 export type McpTokenScope =
+    // Existing (tools + rag)
     | 'tools:read'
     | 'tools:write'
     | 'rag:read'
-    | 'rag:write';
+    | 'rag:write'
+    // Phase 1 — content utilities
+    | 'prompts:read'
+    | 'prompts:write'
+    | 'personality:read'
+    | 'personality:write'
+    | 'templates:read'
+    | 'templates:write'
+    // Phase 2 — config utilities
+    | 'config:read'
+    | 'config:write'
+    | 'models:read'
+    | 'models:write'
+    | 'pricing:read'
+    | 'pricing:write'
+    // Phase 3 — operational utilities
+    | 'learning:read'
+    | 'learning:write'
+    | 'incidents:read'
+    | 'incidents:write'
+    // Phase 4 — extensions
+    | 'extensions:read'
+    | 'extensions:write';
 
 // ============================================================================
 // McpTokenWire — the canonical row shape (no secrets)

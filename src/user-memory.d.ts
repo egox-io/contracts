@@ -29,6 +29,8 @@
  *            → UserMemoryFactResponseData   (the deleted row, for optimistic UI)
  *   DELETE /egox/tenants/:tenantId/learning/users/:externalUserId
  *            → ForgetUserResponseData       (right-to-be-forgotten)
+ *   GET    /egox/tenants/:tenantId/learning/analytics
+ *            → LearningAnalyticsResponseData (per-tenant adoption summary)
  *   (the on/off toggle reuses the existing tenant-config update with
  *    `learningEnabled` — no dedicated route here.)
  *
@@ -195,4 +197,30 @@ export interface UserMemoryFactResponseData {
 export interface ForgetUserResponseData {
     externalUserId: string;
     deletedCount: number;
+}
+
+/**
+ * `GET …/learning/analytics` (Phase C). Per-tenant learning adoption summary —
+ * single-query aggregates over `egox_user_memory`, scoped to the tenant. Powers
+ * the Console analytics stat tiles.
+ */
+export interface LearningAnalyticsResponseData {
+    /** Current per-tenant opt-in state (`egox_tenant_configs.learning_enabled`). */
+    learningEnabled: boolean;
+    /** Distinct external users that have ≥1 learned fact. */
+    totalUsers: number;
+    /** Fact counts by review status. */
+    facts: {
+        total: number;
+        pending: number;
+        approved: number;
+        rejected: number;
+    };
+    /** Fact counts by kind (profile vs semantic memory). */
+    byKind: {
+        profile: number;
+        memory: number;
+    };
+    /** Facts whose text the Presidio pass flagged for possible PII/PHI. */
+    piiFlaggedCount: number;
 }
