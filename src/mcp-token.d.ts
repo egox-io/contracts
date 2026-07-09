@@ -48,6 +48,8 @@ export type McpTokenScope =
     | 'learning:write'
     | 'incidents:read'
     | 'incidents:write'
+    | 'alerts:read'
+    | 'alerts:write'
     // Phase 4 — extensions
     | 'extensions:read'
     | 'extensions:write';
