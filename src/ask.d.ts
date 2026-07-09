@@ -231,4 +231,14 @@ export interface AskResponseData {
      * consumers that ignore it are unaffected (Path-B native-approvals path).
      */
     pendingActions?: Array<{ approvalId: string; toolName: string; summary: string }>;
+    /**
+     * Per-end-user learning observability (Phase 15 / exURM). Present only when
+     * learning was ACTIVE for the turn (tenant opt-in + `externalUserId` present
+     * + not no-store); both absent when learning was off. `memoryInjected` =
+     * at least one APPROVED fact was injected into the prompt this turn;
+     * `memoryProposed` = the agent proposed at least one new PENDING fact via
+     * `remember_fact` this turn. Additive — older consumers ignore them.
+     */
+    memoryInjected?: boolean;
+    memoryProposed?: boolean;
 }

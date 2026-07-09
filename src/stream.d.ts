@@ -184,6 +184,14 @@ export interface AskStreamDoneEvent {
      * Approve/Reject card without parsing the final `data` payload separately.
      */
     pendingActions?: Array<{ approvalId: string; toolName: string; summary: string }>;
+    /**
+     * Per-end-user learning observability (Phase 15 / exURM). Same semantics as
+     * `AskResponseData.{memoryInjected,memoryProposed}` — surfaced on the
+     * terminal event so streaming consumers get the signal without parsing the
+     * final payload. Present only when learning was active this turn.
+     */
+    memoryInjected?: boolean;
+    memoryProposed?: boolean;
 }
 
 export interface AskStreamErrorEvent {
